@@ -386,4 +386,12 @@ In the situations that involve more complicated parallelization, MPI and Intel T
 
 In particular, Intel TBB can becomes important if different levels of parallelization is applied, and over-subscription might arise. Currently, all 3 functions involved in this study has incorporate a key-value function argument of `numthreads` default to be 4. If function composition is used, these `numthreads` should be set properly to avoid oversubscription. But the alternative will be setting `numthreads` with the environment variables `OMP_NUM_THREADS` and uses Intel TBB to get around with oversubscription whenever it arises.
 
+# Packaging and Distributing
+
+Our modules is built using `setup.py`. All the compiler args can be put in `setup.py`, including the `-O` flag levels, `-mtune`, `-march` flags, etc. More investigation is needed on how to target different compilers at the same time. And for instance, Clang compiler does not recognize the `-fopenmp` flag.
+
+Currently, Intel's `icpc` compiler and GNU's `g++` compiler is supported. We found that `g++` compiler does not scale very well for OpenMP when there are too much threads than the number of jobs in `prange`. And for our codes, generally the `icpc` compiler does better at optimizing for speed.
+
+Packaging is going to be important for our pipeline (and is currently suboptimal). In fact one of the forte of Python is packaging and distributing of the code. In the future we should investigate on using docker and shifter. One potential challenge might be the `icpc` compiler.
+
 # Reference

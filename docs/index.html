@@ -91,6 +91,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 </ul></li>
 <li><a href="#numba"><span class="toc-section-number">7</span> Numba</a></li>
 <li><a href="#intel-tbb-mpi"><span class="toc-section-number">8</span> Intel TBB, MPI</a></li>
+<li><a href="#packaging-and-distributing"><span class="toc-section-number">9</span> Packaging and Distributing</a></li>
 <li><a href="#reference">Reference</a></li>
 </ul>
 </nav>
@@ -325,6 +326,10 @@ Use vector always directive or -vec-threshold0 to override </code></pre>
 <li><a href="https://software.intel.com/en-us/articles/exploring-mpi-for-python-on-intel-xeon-phi-processor">Exploring MPI for Python* on Intel® Xeon Phi™ Processor | Intel® Software</a></li>
 </ul>
 <p>In particular, Intel TBB can becomes important if different levels of parallelization is applied, and over-subscription might arise. Currently, all 3 functions involved in this study has incorporate a key-value function argument of <code>numthreads</code> default to be 4. If function composition is used, these <code>numthreads</code> should be set properly to avoid oversubscription. But the alternative will be setting <code>numthreads</code> with the environment variables <code>OMP_NUM_THREADS</code> and uses Intel TBB to get around with oversubscription whenever it arises.</p>
+<h1 id="packaging-and-distributing"><span class="header-section-number">9</span> Packaging and Distributing</h1>
+<p>Our modules is built using <code>setup.py</code>. All the compiler args can be put in <code>setup.py</code>, including the <code>-O</code> flag levels, <code>-mtune</code>, <code>-march</code> flags, etc. More investigation is needed on how to target different compilers at the same time. And for instance, Clang compiler does not recognize the <code>-fopenmp</code> flag.</p>
+<p>Currently, Intel’s <code>icpc</code> compiler and GNU’s <code>g++</code> compiler is supported. We found that <code>g++</code> compiler does not scale very well for OpenMP when there are too much threads than the number of jobs in <code>prange</code>. And for our codes, generally the <code>icpc</code> compiler does better at optimizing for speed.</p>
+<p>Packaging is going to be important for our pipeline (and is currently suboptimal). In fact one of the forte of Python is packaging and distributing of the code. In the future we should investigate on using docker and shifter. One potential challenge might be the <code>icpc</code> compiler.</p>
 <h1 id="reference" class="unnumbered">Reference</h1>
 <div id="refs" class="references">
 <div id="ref-Collaboration:2014eg">
