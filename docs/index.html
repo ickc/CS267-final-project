@@ -288,34 +288,34 @@ Use vector always directive or -vec-threshold0 to override </code></pre>
 <p>Because there is no parallelization scaling in this function (the coefficient is virtually <span class="math inline">\(0\)</span>), we decided not to put this part in the main report but in the appendix.</p>
 <h1 id="numba"><span class="header-section-number">7</span> Numba</h1>
 <p>One of the options that we pursued for code speedup/parallelization was Numba. Numba is a module that generates optimized machine code from a python codebase using the LLVM compiler structure. LLVM is a single static assignment(SSA)-based compilation structure. It allows you to just-in-time compile Python code (including Numpy) at import time, runtime, or statically. To test the speedup, we ran a nontrivial test function; the Numba additions are in red (jit is just-in-time compiling).</p>
-<pre><code>import numpy as np
-(\color(red)from numba import jit)
+<div class="sourceCode"><pre class="sourceCode python"><code class="sourceCode python"><span class="im">import</span> numpy <span class="im">as</span> np
+<span class="im">from</span> numba <span class="im">import</span> jit
 
-(\color(red)@jit)</code></pre>
-<pre fontsize="\small"><code>def naive_convolve(f, g):
-    vmax = f.shape[0]
-    wmax = f.shape[1]
-    smax = g.shape[0]
-    tmax = g.shape[1]
-    smid = smax // 2
-    tmid = tmax // 2
-    xmax = vmax + 2*smid
-    ymax = wmax + 2*tmid
-    h = np.zeros([xmax, ymax], dtype=f.dtype)
-    for x in range(xmax):
-        for y in range(ymax):
-            s_from = max(smid - x, -smid)
-            s_to = min((xmax - x) - smid, smid + 1)
-            t_from = max(tmid - y, -tmid)
-            t_to = min((ymax - y) - tmid, tmid + 1)
-            value = 0
-            for s in range(s_from, s_to):
-                for t in range(t_from, t_to):
-                    v = x - smid + s
-                    w = y - tmid + t
-                    value += g[smid - s, tmid - t] * f[v, w]
-            h[x, y] = value
-    return h</code></pre>
+<span class="at">@jit</span>
+<span class="kw">def</span> naive_convolve(f, g):
+    vmax <span class="op">=</span> f.shape[<span class="dv">0</span>]
+    wmax <span class="op">=</span> f.shape[<span class="dv">1</span>]
+    smax <span class="op">=</span> g.shape[<span class="dv">0</span>]
+    tmax <span class="op">=</span> g.shape[<span class="dv">1</span>]
+    smid <span class="op">=</span> smax <span class="op">//</span> <span class="dv">2</span>
+    tmid <span class="op">=</span> tmax <span class="op">//</span> <span class="dv">2</span>
+    xmax <span class="op">=</span> vmax <span class="op">+</span> <span class="dv">2</span><span class="op">*</span>smid
+    ymax <span class="op">=</span> wmax <span class="op">+</span> <span class="dv">2</span><span class="op">*</span>tmid
+    h <span class="op">=</span> np.zeros([xmax, ymax], dtype<span class="op">=</span>f.dtype)
+    <span class="cf">for</span> x <span class="kw">in</span> <span class="bu">range</span>(xmax):
+        <span class="cf">for</span> y <span class="kw">in</span> <span class="bu">range</span>(ymax):
+            s_from <span class="op">=</span> <span class="bu">max</span>(smid <span class="op">-</span> x, <span class="op">-</span>smid)
+            s_to <span class="op">=</span> <span class="bu">min</span>((xmax <span class="op">-</span> x) <span class="op">-</span> smid, smid <span class="op">+</span> <span class="dv">1</span>)
+            t_from <span class="op">=</span> <span class="bu">max</span>(tmid <span class="op">-</span> y, <span class="op">-</span>tmid)
+            t_to <span class="op">=</span> <span class="bu">min</span>((ymax <span class="op">-</span> y) <span class="op">-</span> tmid, tmid <span class="op">+</span> <span class="dv">1</span>)
+            value <span class="op">=</span> <span class="dv">0</span>
+            <span class="cf">for</span> s <span class="kw">in</span> <span class="bu">range</span>(s_from, s_to):
+                <span class="cf">for</span> t <span class="kw">in</span> <span class="bu">range</span>(t_from, t_to):
+                    v <span class="op">=</span> x <span class="op">-</span> smid <span class="op">+</span> s
+                    w <span class="op">=</span> y <span class="op">-</span> tmid <span class="op">+</span> t
+                    value <span class="op">+=</span> g[smid <span class="op">-</span> s, tmid <span class="op">-</span> t] <span class="op">*</span> f[v, w]
+            h[x, y] <span class="op">=</span> value
+    <span class="cf">return</span> h</code></pre></div>
 <p>In normal python without Numba, this code takes 1.41s to run with a 100x100 and 8x8 array for f and g. With Numba and jit, this code takes 2.8 ms to execute, a speedup of more than 40x, but times depend on the machine used. It has been reported that Numba can speed code up up to 200x (<a href="https://en.wikipedia.org/wiki/Numba" class="uri">https://en.wikipedia.org/wiki/Numba</a>).</p>
 <p>When we began looking into Numba, we were under the impression that there was an additional function called prange, which uses as many CPUs as detected by the multiprocessing module and runs loops in parallel. However, we then found out that this function had been removed and Numba no longer possesses parallelization options. At this point, we abandoned this strategy, but it is worth mentioning because of the incredible (non-parallel) speedup obtained for Python code with very minimal effort.</p>
 <h1 id="intel-tbb-mpi"><span class="header-section-number">8</span> Intel TBB, MPI</h1>

@@ -13,7 +13,7 @@ lang:	en
 papersize:	letter
 fontsize:	10pt
 documentclass:	memoir
-classoption:	oneside
+classoption:	oneside, article
 geometry:	inner=1in, outer=1in, top=1in, bottom=1.25in
 fontfamily:	fourier
 usepackage:	siunitx,cancel,physics,placeins
@@ -342,12 +342,11 @@ Because there is no parallelization scaling in this function (the coefficient is
 
 One of the options that we pursued for code speedup/parallelization was Numba. Numba is a module that generates optimized machine code from a python codebase using the LLVM compiler structure. LLVM is a single static assignment(SSA)-based compilation structure. It allows you to just-in-time compile Python code (including Numpy) at import time, runtime, or statically. To test the speedup, we ran a nontrivial test function; the Numba additions are in red (jit is just-in-time compiling).
 
-    import numpy as np
-    (\color(red)from numba import jit)
+```python
+import numpy as np
+from numba import jit
 
-    (\color(red)@jit)
-
-``` {fontsize="\small"}
+@jit
 def naive_convolve(f, g):
     vmax = f.shape[0]
     wmax = f.shape[1]
