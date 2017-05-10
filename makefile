@@ -3,9 +3,9 @@ SHELL := /usr/bin/env bash
 # configure engine
 ## LaTeX engine
 ### LaTeX workflow: pdf; xelatex; lualatex
-latexmkEngine := pdf
+latexmkEngine := xelatex
 ### pandoc workflow: pdflatex; xelatex; lualatex
-pandocEngine := pdflatex
+pandocEngine := xelatex
 ## HTML
 HTMLVersion := html5
 
@@ -16,7 +16,7 @@ MD2HTML := $(patsubst %.md,docs/%.html,$(MD))
 
 CSSURL:=https://ickc.github.io/markdown-latex-css
 # command line arguments
-pandocArgCommon := -f markdown+autolink_bare_uris-fancy_lists --normalize -S -V linkcolorblue -V citecolor=blue -V urlcolor=blue -V toccolor=blue --latex-engine=$(pandocEngine) -M date="`date "+%B %e, %Y"`" --filter=pandoc-citeproc --bibliography=citation.bib --toc --csl=the-astronomy-and-astrophysics-review.csl
+pandocArgCommon := -f markdown+autolink_bare_uris-fancy_lists --normalize -S --latex-engine=$(pandocEngine) -M date="`date "+%B %e, %Y"`" --filter=pandoc-citeproc --bibliography=citation.bib --toc --csl=the-astronomy-and-astrophysics-review.csl
 ## MD
 # pandocArgMD := -f markdown+abbreviations+autolink_bare_uris+markdown_attribute+mmd_header_identifiers+mmd_link_attributes+mmd_title_block+tex_math_double_backslash-latex_macros-auto_identifiers -t markdown+raw_tex-native_spans-simple_tables-multiline_tables-grid_tables-latex_macros --normalize -s --wrap=none --column=999 --atx-headers --reference-location=block --file-scope
 ## TeX/PDF
