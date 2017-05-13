@@ -1,9 +1,7 @@
 ---
-title:	CS 267 Final Project --- Application of Parallelization in POLARBEAR's Pipeline for CMB Analysis through Cython
+title:	Application of Parallelization in POLARBEAR's Pipeline for CMB Analysis through Cython
 subtitle:	Spring 2017, University of California, Berkeley
-author:
-	- Kolen Cheung
-	- Katherine Oosterbaan
+author:	Kolen Cheung
 date:	\today
 abstract:	|
 	We proposed a strategy to speedup the pipeline of POLARBEAR, a group that measures Comic Microwave Background Radiation (CMB) polarization, using Cython such that SIMD vectorization and OpenMP parallelization can be utilized relatively easily. 3 example functions are focused in this study that involves various different properties and hence different kinds of optimization techniques are required and has different benchmark behaviors.
@@ -328,18 +326,7 @@ More investigation is needed in this comparison. And in fact a quick demo based 
 
 # Polynomial Filter Array
 
-## Description
-
-The poly\_filter\_array code uses a Legendre polynomial to fix the gain of the data, as the gain drifts during the scanning period. Unlike ground\_template\_filter\_array , poly\_filter\_array relies heavily on Numpy functions, which for pure Python code provides good speedup. However, it is very unfortunate when one is trying to transition the code to Cython.
-
-To transition the code to Cython, we rewrote the code in the Cython memoryview array style, similar to the ground template filter. However, when it came time to parallelize, we ran into serious problems. To parallelize Cython code, it is required that we release the GIL, which is not possible when code contains Numpy calls. Unfortunately, this was almost the entire code, which meant that the few cases where we actually could call prange resulted in no speedup whatsoever. For a future direction, we recommend rewriting the code to eliminate the use of Numpy, which would enable the code to be reformatted in C-style and parallelized, which is the maximum Cython speedup.
-
-One more point of interest with this code is that it was written and compiled in a Jupyter notebook that was run within NERSC. NERSC uses the Intel MKL distribution of Python and Numpy, which actually already uses OpenMP to deliver thread-level parallelism and include specialized vectorization instructions. This means that simply by compiling and running the code on NERSC, we may already be taking advantage of parallelism that’s implicitly built into the Python framework.
-
-In summary, when code contains significant amounts of Numpy operations, optimal conversion to Cython and Cythonized parallelization is not possible. To fully implement code in Cython and to parallelize it, code must be rewritten to eliminate Numpy calls.
-
-
-## Benchmark
+The code can be found in [TAIL/poly_filter_array.pyx](https://github.com/ickc/TAIL/blob/master/tail/timestream/poly_filter_array.pyx).
 
 For number of channels $10,000$, number of time stream data point $10,000$, and polynomial order $4$:
 
@@ -361,7 +348,7 @@ Packaging is going to be important for our pipeline. In fact one of the forte of
 
 We should also mentioned that docstrings and comments are emphasized in TAIL, which is lacking in AnalysisBackend. In the future, these docstrings can easily be turned into documentation through a very popular Python library called Sphinx. We strongly believed that good documentation should play an important role in distributing our code.
 
-Continuous Integration is also employed using [Travis](https://travis-ci.org/ickc/TAIL). Python 2.7 and Python 3.6 are test against, and the Cythonized C++ code is built using GNU's `g++` compiler. Intel's `icpc` compiler for Continuous Integration is possible[^[nemequ/icc-travis: Script to help install Intel C/C++ Compiler on Travis CI.](https://github.com/nemequ/icc-travis)] but has been unreliable to the author and not used. However, every build is tested locally using Intel's compiler before pushing to guarantee the code is always in a working state.
+Continuous Integration is also employed using [Travis](https://travis-ci.org/ickc/TAIL). Python 2.7 and Python 3.6 are test against, and the Cythonized C++ code is built using GNU's `g++` compiler. Intel's `icpc` compiler for Continuous Integration is possible^[[nemequ/icc-travis: Script to help install Intel C/C++ Compiler on Travis CI.](https://github.com/nemequ/icc-travis)] but has been unreliable to the author and not used. However, every build is tested locally using Intel's compiler before pushing to guarantee the code is always in a working state.
 
 # Intel TBB, MPI
 
@@ -371,44 +358,5 @@ In the situations that involve more complicated parallelization, MPI and Intel T
 - [Exploring MPI for Python* on Intel® Xeon Phi™ Processor | Intel® Software](https://software.intel.com/en-us/articles/exploring-mpi-for-python-on-intel-xeon-phi-processor)  
 
 In particular, Intel TBB can becomes important if different levels of parallelization is applied where over-subscription might arise. Currently, all 3 functions involved in this study has incorporate a key-value function argument of `numthreads` default to be 4. If function composition is used, these `numthreads` should be set properly to avoid oversubscription. One possible alternative will be setting `numthreads` with the environment variables `OMP_NUM_THREADS` and uses Intel TBB to get around with oversubscription whenever it arises.
-
-# Numba
-
-One of the options that we pursued for code speedup/parallelization was Numba. Numba is a module that generates optimized machine code from a python codebase using the LLVM compiler structure. LLVM is a single static assignment(SSA)-based compilation structure. It allows you to just-in-time compile Python code (including Numpy) at import time, runtime, or statically. To test the speedup, we ran a nontrivial test function; the Numba additions are in red (jit is just-in-time compiling).
-
-```python
-import numpy as np
-from numba import jit
-
-@jit
-def naive_convolve(f, g):
-    vmax = f.shape[0]
-    wmax = f.shape[1]
-    smax = g.shape[0]
-    tmax = g.shape[1]
-    smid = smax // 2
-    tmid = tmax // 2
-    xmax = vmax + 2*smid
-    ymax = wmax + 2*tmid
-    h = np.zeros([xmax, ymax], dtype=f.dtype)
-    for x in range(xmax):
-        for y in range(ymax):
-            s_from = max(smid - x, -smid)
-            s_to = min((xmax - x) - smid, smid + 1)
-            t_from = max(tmid - y, -tmid)
-            t_to = min((ymax - y) - tmid, tmid + 1)
-            value = 0
-            for s in range(s_from, s_to):
-                for t in range(t_from, t_to):
-                    v = x - smid + s
-                    w = y - tmid + t
-                    value += g[smid - s, tmid - t] * f[v, w]
-            h[x, y] = value
-    return h
-```
-
-In normal python without Numba, this code takes 1.41s to run with a 100x100 and 8x8 array for f and g. With Numba and jit, this code takes 2.8 ms to execute, a speedup of more than 40x, but times depend on the machine used. It has been reported that Numba can speed code up up to 200x (https://en.wikipedia.org/wiki/Numba).
-
-When we began looking into Numba, we were under the impression that there was an additional function called prange, which uses as many CPUs as detected by the multiprocessing module and runs loops in parallel. However, we then found out that this function had been removed and Numba no longer possesses parallelization options. At this point, we abandoned this strategy, but it is worth mentioning because of the incredible (non-parallel) speedup obtained for Python code with very minimal effort.
 
 # Reference
