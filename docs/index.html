@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
   <meta name="author" content="Kolen Cheung">
   <meta name="author" content="Katherine Oosterbaan">
+  <meta name="dcterms.date" content="2017-05-12">
   <meta name="keywords" content="CS267, Parallel Computing, POLARBEAR, CMB, final project">
   <title>CS 267 Final Project — Application of Parallelization in POLARBEAR’s Pipeline for CMB Analysis through Cython</title>
   <style type="text/css">code{white-space: pre;}</style>
@@ -60,7 +61,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <p class="subtitle">Spring 2017, University of California, Berkeley</p>
 <p class="author">Kolen Cheung</p>
 <p class="author">Katherine Oosterbaan</p>
-<p class="date">May  9, 2017</p>
+<p class="date">May 12, 2017</p>
 </header>
 <nav id="TOC">
 <ul>
@@ -299,7 +300,7 @@ Use vector always directive or -vec-threshold0 to override </code></pre>
 <p>Currently, Intel’s <code>icpc</code> compiler and GNU’s <code>g++</code> compiler is supported. We found that <code>g++</code> compiler does not scale very well for OpenMP when there are too much threads than the number of jobs in <code>prange</code>. And for our codes, generally the <code>icpc</code> compiler does better at optimizing for speed.</p>
 <p>Packaging is going to be important for our pipeline. In fact one of the forte of Python is packaging and distributing of the code. In the future we should investigate on using Conda build recipes to improve packaging and distribution, and also docker and shifter for both ease of deployment and potential speedup<a href="#fn10" class="footnoteRef" id="fnref10"><sup>10</sup></a>. One potential challenge here might be the use of <code>icpc</code> compiler.</p>
 <p>We should also mentioned that docstrings and comments are emphasized in TAIL, which is lacking in AnalysisBackend. In the future, these docstrings can easily be turned into documentation through a very popular Python library called Sphinx. We strongly believed that good documentation should play an important role in distributing our code.</p>
-<p>Continuous Integration is also employed using <a href="https://travis-ci.org/ickc/TAIL">Travis</a>. Python 2.7 and Python 3.6 are test against, and the Cythonized C++ code is built using GNU’s <code>g++</code> compiler. Intel’s <code>icpc</code> compiler for Continuous Integration is possible[<a href="#fn11" class="footnoteRef" id="fnref11"><sup>11</sup></a>(<a href="https://github.com/nemequ/icc-travis" class="uri">https://github.com/nemequ/icc-travis</a>)] but has been unreliable to the author and not used. However, every build is tested locally using Intel’s compiler before pushing to guarantee the code is always in a working state.</p>
+<p>Continuous Integration is also employed using <a href="https://travis-ci.org/ickc/TAIL">Travis</a>. Python 2.7 and Python 3.6 are test against, and the Cythonized C++ code is built using GNU’s <code>g++</code> compiler. Intel’s <code>icpc</code> compiler for Continuous Integration is possible<a href="#fn11" class="footnoteRef" id="fnref11"><sup>11</sup></a> but has been unreliable to the author and not used. However, every build is tested locally using Intel’s compiler before pushing to guarantee the code is always in a working state.</p>
 <h1 id="intel-tbb-mpi"><span class="header-section-number">8</span> Intel TBB, MPI</h1>
 <p>In the situations that involve more complicated parallelization, MPI and Intel Threading Building Blocks (TBB) might be beneficial. We did not try either approach here, but Intel has some nice articles on using MPI and TBB in Python:</p>
 <ul>
@@ -361,7 +362,7 @@ Use vector always directive or -vec-threshold0 to override </code></pre>
 <li id="fn8"><p>Physically, the <code>True</code> island represent the map we have for the CMB. Since we are scanning for a curvilinear sky, the map we made is not necessarily rectangular.<a href="#fnref8">↩</a></p></li>
 <li id="fn9"><p>in actual data size, it finishes on the order of <span class="math inline">\(\si{\ms}\)</span>.<a href="#fnref9">↩</a></p></li>
 <li id="fn10"><p>NERSC’s study has shown that Shifter can accelerate Python applications due to the huge metadata IO that Python needs. See more in <a href="http://www.nersc.gov/research-and-development/user-defined-images/">Shifter: User Defined Images</a> and <a href="https://www.nersc.gov/assets/Uploads/10-Python.pdf">An Introduction to Python at NERSC</a>.<a href="#fnref10">↩</a></p></li>
-<li id="fn11"><p>nemequ/icc-travis: Script to help install Intel C/C++ Compiler on Travis CI.<a href="#fnref11">↩</a></p></li>
+<li id="fn11"><p><a href="https://github.com/nemequ/icc-travis">nemequ/icc-travis: Script to help install Intel C/C++ Compiler on Travis CI.</a><a href="#fnref11">↩</a></p></li>
 </ol>
 </section>
 </body>
