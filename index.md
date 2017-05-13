@@ -361,7 +361,7 @@ Packaging is going to be important for our pipeline. In fact one of the forte of
 
 We should also mentioned that docstrings and comments are emphasized in TAIL, which is lacking in AnalysisBackend. In the future, these docstrings can easily be turned into documentation through a very popular Python library called Sphinx. We strongly believed that good documentation should play an important role in distributing our code.
 
-Continuous Integration is also employed using [Travis](https://travis-ci.org/ickc/TAIL). Python 2.7 and Python 3.6 are test against, and the Cythonized C++ code is built using GNU's `g++` compiler. Intel's `icpc` compiler for Continuous Integration is possible[^[nemequ/icc-travis: Script to help install Intel C/C++ Compiler on Travis CI.](https://github.com/nemequ/icc-travis)] but has been unreliable to the author and not used. However, every build is tested locally using Intel's compiler before pushing to guarantee the code is always in a working state.
+Continuous Integration is also employed using [Travis](https://travis-ci.org/ickc/TAIL). Python 2.7 and Python 3.6 are test against, and the Cythonized C++ code is built using GNU's `g++` compiler. Intel's `icpc` compiler for Continuous Integration is possible^[[nemequ/icc-travis: Script to help install Intel C/C++ Compiler on Travis CI.](https://github.com/nemequ/icc-travis)] but has been unreliable to the author and not used. However, every build is tested locally using Intel's compiler before pushing to guarantee the code is always in a working state.
 
 # Intel TBB, MPI
 
