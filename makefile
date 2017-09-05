@@ -14,7 +14,7 @@ MD := $(wildcard *.md)
 MD2PDF := $(patsubst %.md,docs/%.pdf,$(MD))
 MD2HTML := $(patsubst %.md,docs/%.html,$(MD))
 
-CSSURL:=https://ickc.github.io/markdown-latex-css
+CSSURL:=https://cdn.jsdelivr.net/gh/ickc/markdown-latex-css
 # command line arguments
 pandocArgCommon := -f markdown+autolink_bare_uris-fancy_lists --normalize -S --latex-engine=$(pandocEngine) -M date="`date "+%B %e, %Y"`" --filter=pandoc-citeproc --bibliography=citation.bib --toc --csl=the-astronomy-and-astrophysics-review.csl
 ## MD
@@ -26,7 +26,7 @@ pandocArgFragment := $(pandocArgCommon)
 ### pandoc workflow
 pandocArgStandalone := $(pandocArgFragment) -s -N
 ## HTML/ePub
-pandocArgHTML := $(pandocArgFragment) -t $(HTMLVersion) -s -N --mathjax -c $(CSSURL)/css/common.css -c $(CSSURL)/fonts/fonts.css
+pandocArgHTML := $(pandocArgFragment) -t $(HTMLVersion) -s -N --mathjax -c $(CSSURL)/css/common.min.css -c $(CSSURL)/fonts/fonts.min.css
 # pandocArgePub := $(pandocArgFragment) -s -N --mathjax -c $(CSSURL)/css/common.css -c $(CSSURL)/fonts/fonts.css -t $(ePubVersion) --epub-chapter-level=2 --self-contained
 # GitHub README
 pandocArgReadmeGitHub := $(pandocArgCommon) -s -t markdown_github --reference-location=block
