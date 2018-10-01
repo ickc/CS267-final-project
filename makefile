@@ -36,7 +36,7 @@ pandocArgReadmeGitHub := $(pandocArgCommon) -s -t markdown_github --reference-lo
 all: $(MD2PDF) $(MD2HTML)
 	echo $(MD)
 
-clean:
+Clean:
 	rm -f  $(MD2PDF) $(MD2HTML)
 
 ####################################################################################################################################
